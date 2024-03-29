@@ -1,0 +1,3 @@
+TOKEN = '1831088059:AAGx03SVubjqDeDv-cLSGUSrQSBdBwZ3tcU'
+
+TECH_SUPPORT_URL = "https://t.me/alexeyv15"
