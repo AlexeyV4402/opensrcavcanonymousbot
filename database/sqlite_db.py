@@ -1,12 +1,9 @@
+import sqlite3
 import sqlite3 as sq
 
 
-async def sql_start():
-    global base, cur
-    base = sq.connect('data.db')
-    cur = base.cursor()
-    if base:
-        pass
+base = sq.connect('/home/AlexeyV/Documents/Python/Telegram Bots/AnonymousBot/data.db')
+cur = base.cursor()
 
 
 async def sql_add_command(table: str, data):
@@ -16,9 +13,6 @@ async def sql_add_command(table: str, data):
     else:
         values = data
     cur.execute(f"INSERT INTO '{table}' VALUES ({str('?, ' * length).removesuffix(', ')})", tuple(values))
-    # else:
-    #     async with state.proxy() as data:
-    #         cur.execute(f"INSERT INTO '{table}' VALUES ({str('?, '*length).removesuffix(', ')})", tuple(state.values()))
     base.commit()
 
 
@@ -43,6 +37,10 @@ async def sql_read(table: str, key, value=None):
         return cur.execute(f"SELECT * FROM '{table}' WHERE {key} = '{value}';").fetchall()
 
 
+async def sql_get_value(table: str, check_key, check_value, output_key):
+    return cur.execute(f"SELECT {output_key} FROM '{table}' WHERE {check_key} = '{check_value}';").fetchall()
+
+
 async def sql_remove(table: str, key, value):
     cur.execute(f"DELETE FROM {table} WHERE {key}='{value}';")
     base.commit()
@@ -55,3 +53,9 @@ async def sql_update(table: str, key, value, replace_data_key, replace_data_valu
 
 async def sql_table_length(table: str):
     return cur.execute(f"SELECT COUNT() FROM {table}").fetchone()[0]
+
+
+def sql_get_column_values(table: str, column: str):
+    global cur
+    data = cur.execute(f"SELECT {column}, {column} FROM {table}").fetchall()
+    return [str(i[0]).lower() for i in data]

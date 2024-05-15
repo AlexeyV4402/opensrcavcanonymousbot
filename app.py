@@ -3,15 +3,18 @@ from loader import dp, bot
 from handlers.other import other_router
 from handlers.start_questions import start_router
 from handlers.universal_handlers import universal_router
+from handlers.select_room import select_room_router
+from handlers.anonymous_chat import chat_router
 
-from asyncio import run
-from database.sqlite_db import sql_start, sql_get_tables, sql_create_table
+from asyncio import run, sleep
+from database import sqlite_db
+
+from utils.lang import _
 
 
 async def init_sql():
-    await sql_start()
-    if "users" not in await sql_get_tables():
-        sql_create_table(
+    if "users" not in await sqlite_db.sql_get_tables():
+        sqlite_db.sql_create_table(
             "users",
             "id INTEGER UNIQUE PRIMARY KEY",
             "age INTEGER",
@@ -26,13 +29,15 @@ async def init_sql():
 
 
 async def main():
+    await init_sql()
     dp.include_routers(
         other_router,
-        start_router
+        start_router,
+        select_room_router
     )
-
     dp.include_router(universal_router)
-    await init_sql()
+    dp.include_router(chat_router)
+
     await dp.start_polling(bot, skip_updates=True)
 
 
